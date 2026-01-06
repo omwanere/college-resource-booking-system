@@ -3,6 +3,7 @@ import cors from "cors";
 
 import pool from "./db/index.js";
 const app = express();
+import authRoutes from "./routes/auth.routes.js"
 
 app.use(cors());
 app.use(express.json());
@@ -20,6 +21,8 @@ app.get('/db-test',async(req,res)=>{
         res.status(500).json({success: false});
     }
 });
+
+app.use('/auth', authRoutes);
 
 app.get('/', (req,res)=> {
     res.send("Backend is running");
