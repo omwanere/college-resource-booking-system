@@ -5,7 +5,7 @@ import {
     updateResource,
     disableResource,
     getResourceAvailability,
-     } from "../controllers/resource.controller";
+     } from "../controllers/resource.controller.js";
 import { authenticate} from "../middleware/auth.middleware.js";
 import {authorizeRoles} from "../middleware/role.middleware.js";
 

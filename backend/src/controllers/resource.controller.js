@@ -138,7 +138,7 @@ export const getResourceAvailability = async (req, res) => {
              WHERE resource_id = $1
              AND status = 'APPROVED'
              AND DATE(start_time) = $2
-             ORDER BY stat_time`,
+             ORDER BY start_time`,
             [id, date]
         );
         res.json({

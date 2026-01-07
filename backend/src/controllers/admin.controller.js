@@ -13,7 +13,7 @@ export const getAdminStats = async (req, res) => {
         ] = await Promise.all([
             pool.query('SELECT COUNT(*) FROM public.users'),
             pool.query('SELECT COUNT(*) FROM public.resources'),
-            pool.query('SELECT COUNT(*) FROM publlic.bookings'),
+            pool.query('SELECT COUNT(*) FROM public.bookings'),
             pool.query(
                 "SELECT COUNT(*) FROM public.bookings WHERE status = 'PENDING'"
             ),

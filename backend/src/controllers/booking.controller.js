@@ -7,7 +7,7 @@ export const createBooking = async (req, res) => {
         const userId = req.user.userId;
         const {resource_id, start_time, end_time} = req.body;
 
-        if(!request_id || !start_time || !end_time){
+        if(!resource_id || !start_time || !end_time){
             return res.status(400).json({
                 message: 'resource_id, start_time and end_time are required',
             });
@@ -51,10 +51,14 @@ export const createBooking = async (req, res) => {
             message: "Booking request created",
             booking: result.rows[0],
         });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({message: 'Server Error'});
-    }
+    } catch (err) {
+  console.error('CREATE BOOKING ERROR:', err);
+  res.status(500).json({
+    message: 'Server Error',
+    error: err.message,
+  });
+}
+
 };
 
 export const approveBooking = async (req, res) => {
@@ -65,7 +69,7 @@ export const approveBooking = async (req, res) => {
             [id]
         );
 
-        if(booking.rows.length === 0){
+        if(bookingResult.rows.length === 0){
             res.status(404).json({message: 'Booking Not Found'});
         }
 
@@ -151,14 +155,14 @@ export const getMyBookings = async (req, res) => {
          WHERE b.user_id = $1
         `;
 
-        const values = {userId};
+        const values = [userId];
 
         if(status){
             query += 'AND b.status = $2';
             values.push(status);
         }
 
-        query += 'ORDER BY .start_time';
+        query += 'ORDER BY b.start_time';
 
         const result = await pool.query(query, values);
         
@@ -179,12 +183,12 @@ export const getAllBookings = async (req, res) => {
         let query = `
          SELECT b.*, u.email, r.name AS resource_name, r.type
          FROM public.bookings b
-         JOIN public.users u ON b.user_id = u.is
+         JOIN public.users u ON b.user_id = u.id
          JOIN public.resources r ON b.resource_id = r.id
          WHERE 1=1
         `;
 
-        const value = [];
+        const values = [];
         let index = 1;
 
         if(status){
@@ -207,7 +211,7 @@ export const getAllBookings = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).jdon({message: 'Server Error'
+        res.status(500).json({message: 'Server Error'
         });
     }
 };
