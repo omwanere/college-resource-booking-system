@@ -4,19 +4,13 @@ import cors from "cors";
 import pool from "./db/index.js";
 const app = express();
 import authRoutes from "./routes/auth.routes.js"
-import { authenticate } from "./middleware/auth.middleware.js";
+import resourceRoutes from './routes/resource.routes.js'
 
 app.use(cors());
 app.use(express.json());
 
 app.use('/auth', authRoutes);
-
-app.get('/protected', authenticate, (req, res)=> {
-    res.json({
-        message: 'Protected route accessed',
-        user: req.user,
-    });
-});
+app.use('/resources', resourceRoutes);
 
 app.get('/', (req,res)=> {
     res.send("Backend is running");

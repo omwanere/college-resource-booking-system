@@ -1,0 +1,111 @@
+import pool from "../db/index.js"
+import dotenv from "dotenv";
+dotenv.config();
+
+export const createResource = async (req, res) => {
+    try {
+        const {name, type, capacity, location} = req.body;
+        if(!name || !type){
+            return res.status(400).json({
+                message: "Resource name and type are required",
+            });
+        }
+
+        const result = await pool.query(
+            `INSERT INTO public.resources (name, type, capacity, location)
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [name, type, capacity, location]
+        );
+
+        res.status(201).json({
+            message: "Resource created successfully",
+            resource: result.rows[0],
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: 'Server error'});
+    }
+};
+
+export const getResources = async (req, res) => {
+    try {
+        const {type} = req.query;
+        let query = 'SELECT * FROM public.resources WHERE is_active = true';
+        const values = [];
+
+        if(type){
+            query += ' AND type = $1';
+            values.push(type);
+        }
+
+        const result = await pool.query(query, values);
+
+        res.json({
+            count: result.rows.length,
+            resources: result.rows,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: 'Server Error'});
+    }
+};
+
+export const updateResource = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const {name, type, capacity, location, is_active} = req.body;
+
+        const result = await pool.query(
+            `UPDATE public.resources
+             SET
+                name=  COALESCE($1, name),
+                type = COALESCE($2, type),
+                capacity = COALESCE($3, type)
+                location = COALESCE($4, type),
+                is_active = COALESCE($5, type),
+             WHERE id = $6
+             RETURNING *`,
+            [name, type, capacity, location, is_active, id]
+        );
+
+        if(result.rows.length === 0){
+            res.status(404).json({message: 'Resource not found'});
+        }
+
+        res.json({
+            message: 'Resource updated successfully',
+            resource: result.rows[0],
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: 'Server Error'});
+    }
+};
+
+export const disableResource = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await pool.query(
+            `UPDATE public.resources
+             SET is_active = false
+             WHERE id = $1
+             RETURNING *`,
+            [id]
+        );
+
+        if(result.rows.length === 0){
+            return res.status(404).json({message: 'Resource not found'});
+        }
+
+        res.json(
+            {
+                message: 'Resource disabled successfully',
+                resource: result.rows[0],
+            }
+        );
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: 'Server Error'});
+    }
+};
