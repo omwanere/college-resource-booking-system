@@ -212,3 +212,50 @@ export const getAllBookings = async (req, res) => {
     }
 };
 
+export const cancelBooking = async (req, res) => {
+     try {
+        const userId = req.user.userId;
+        const {id} = req.params;
+
+        const bookingResult = await pool.query(
+            `SELECT * FROM public.bookings WHERE id = $1`,
+            [id]
+        );
+
+        if(bookingResult.rows.length === 0)
+        {
+            return res.status(404).json({message: 'Booking Not Found'});
+        }
+
+        const booking = bookingResult.rows[0];
+
+        if(booking.user_id !== userId){
+            return res.status(403).json({
+                message: 'You can cancel only your own bookings',
+            });
+        }
+
+        if(!['PENDING', 'APPROVED'].includes(booking.status)){
+            return res.status(400).json({
+                message: 'Only pending or approved bookings can be cancelled',
+            });
+        }
+
+        const result = await pool.query(
+            `UPDATE public.bookings
+             SET status = 'CANCELLED'
+             WHERE id = $1
+             RETURNING *`,
+            [id]
+        );
+
+        res.json({
+            message: 'Booking cancelled successfully',
+            booking: result.rows[0],
+        });
+     } catch (error) {
+        console.error(error);
+        res.status(500).json({message: 'Server Error'});
+     }
+};
+

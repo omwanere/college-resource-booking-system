@@ -109,3 +109,45 @@ export const disableResource = async (req, res) => {
         res.status(500).json({message: 'Server Error'});
     }
 };
+
+export const getResourceAvailability = async (req, res) => {
+    try {
+        const {id} = req. params;
+        const {date} = req.query;
+
+        if(!date){
+            return res.status(400).json({
+                message: 'date query parameter is required (YYYY-MM-DD)',
+            });
+        }
+
+        const resourceCheck = await pool.query(
+            `SELECT id, name, type FROM public.resources
+             WHERE id = $1 AND is_active = true`,
+            [id]
+        );
+
+        if(resourceCheck.rows.length === 0)
+        {
+            return res.status(404).json({message: 'Resource not found'});
+        }
+
+        const bookingsResult = await pool.query(
+            `SELECT start_time, end_time
+             FROM public.bookings
+             WHERE resource_id = $1
+             AND status = 'APPROVED'
+             AND DATE(start_time) = $2
+             ORDER BY stat_time`,
+            [id, date]
+        );
+        res.json({
+            resource: resourceCheck.rows[0],
+            date,
+            busySlots: bookingsResult.rows,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({messgae: 'Server Error'});
+    }
+};
