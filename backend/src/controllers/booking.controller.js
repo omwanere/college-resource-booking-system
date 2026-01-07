@@ -137,5 +137,78 @@ export const rejectBooking = async (req, res) => {
         console.error(error);
         res.status(500).json({message: 'Server Error'});
     }
-}
+};
+
+export const getMyBookings = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const {status} = req.query;
+
+        let query = `
+         SELECT b.*, r.name AS recource_name, r.type
+         FROM public.bookings b
+         JOIN public.resources r ON b.resource_id = r.id
+         WHERE b.user_id = $1
+        `;
+
+        const values = {userId};
+
+        if(status){
+            query += 'AND b.status = $2';
+            values.push(status);
+        }
+
+        query += 'ORDER BY .start_time';
+
+        const result = await pool.query(query, values);
+        
+        res.json({
+            count: result.rows.length,
+            booking: result.rows,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: 'Server Error'});
+    }
+};
+
+export const getAllBookings = async (req, res) => {
+    try {
+        const {status, resource_id} = req.query;
+
+        let query = `
+         SELECT b.*, u.email, r.name AS resource_name, r.type
+         FROM public.bookings b
+         JOIN public.users u ON b.user_id = u.is
+         JOIN public.resources r ON b.resource_id = r.id
+         WHERE 1=1
+        `;
+
+        const value = [];
+        let index = 1;
+
+        if(status){
+            query += `AND b.status = $${index++}`;
+            values.push(status);
+        }
+
+        if(resource_id){
+            query += `AND b.resource_id = $${index++}`;
+            values.push(resource_id);
+        }
+
+        query += ` ORDER BY b.created_at DESC`;
+
+        const result = await pool.query(query, values);
+
+        res.json({
+            count: result.rows.length,
+            bookings: result.rows,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).jdon({message: 'Server Error'
+        });
+    }
+};
 
