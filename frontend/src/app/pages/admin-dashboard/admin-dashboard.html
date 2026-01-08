@@ -1,4 +1,32 @@
 <mat-card style="margin: 20px;">
-  <h2>Admin Dashboard</h2>
-  <p>Manage resources, approve bookings, and view stats.</p>
+  <h2>Pending Booking Requests</h2>
+
+  <div *ngIf="loading">Loading...</div>
+
+  <mat-card *ngFor="let booking of bookings" style="margin-top: 15px;">
+    <p><strong>Resource:</strong> {{ booking.resource_name }}</p>
+    <p><strong>User:</strong> {{ booking.user_email }}</p>
+    <p>
+      <strong>Time:</strong>
+      {{ booking.start_time | date:'short' }} -
+      {{ booking.end_time | date:'short' }}
+    </p>
+
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="approve(booking.id)"
+    >
+      Approve
+    </button>
+
+    <button
+      mat-raised-button
+      color="warn"
+      style="margin-left: 10px;"
+      (click)="reject(booking.id)"
+    >
+      Reject
+    </button>
+  </mat-card>
 </mat-card>
