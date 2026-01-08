@@ -1,0 +1,20 @@
+<mat-toolbar color="primary">
+  <span>College Resource Booking</span>
+  <span style="flex: 1 1 auto;"></span>
+
+  <button mat-button routerLink="/dashboard" *ngIf="auth.isLoggedIn()">
+    Dashboard
+  </button>
+
+  <button mat-button routerLink="/resources" *ngIf="auth.isLoggedIn()">
+    Resources
+  </button>
+
+  <button mat-button routerLink="/admin" *ngIf="auth.getUserRole() === 'ADMIN'">
+    Admin
+  </button>
+
+  <button mat-button (click)="logout()" *ngIf="auth.isLoggedIn()">
+    Logout
+  </button>
+</mat-toolbar>

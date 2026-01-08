@@ -9,7 +9,7 @@ import { Resources } from './pages/resources/resources';
 import { AuthGuard } from './guards/auth-guard';
 import { AdminGuard } from './guards/admin-guard';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: UserDashboard, canActivate: [AuthGuard]},

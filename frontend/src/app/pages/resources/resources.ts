@@ -1,9 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { ResourceService } from '../../services/resource';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-resources',
+  standalone: true,
+  imports: [
+  CommonModule,
+  FormsModule,
+  MatCardModule,
+  MatDatepickerModule,
+  MatNativeDateModule,
+  MatButtonModule,
+  ],
   templateUrl: './resources.html',
 })
 

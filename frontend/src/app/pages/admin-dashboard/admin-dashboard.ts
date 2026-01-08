@@ -1,8 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminBooking } from '../../services/admin-booking';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule, DatePipe } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-admin-dashboard',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    DatePipe
+  ],
   templateUrl: './admin-dashboard.html',
 })
 export class AdminDashboard implements OnInit{
