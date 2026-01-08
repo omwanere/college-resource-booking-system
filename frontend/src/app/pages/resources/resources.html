@@ -1,0 +1,64 @@
+<mat-card style="margin: 20px;">
+  <h2>Available Resources</h2>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Select date</mat-label>
+    <input
+      matInput
+      [matDatepicker]="picker"
+      [(ngModel)]="selectedDate"
+    />
+    <mat-datepicker-toggle
+      matSuffix
+      [for]="picker"
+    ></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+  <mat-card
+    *ngFor="let resource of resources"
+    style="margin-top: 20px;"
+  >
+    <h3>{{ resource.name }}</h3>
+    <p>Type: {{ resource.type }}</p>
+    <p>Capacity: {{ resource.capacity }}</p>
+    <p>Location: {{ resource.location }}</p>
+
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="checkAvailability(resource.id)"
+    >
+      Check Availability
+    </button>
+
+    <div *ngIf="availability[resource.id]?.length">
+      <p><strong>Busy slots:</strong></p>
+      <ul>
+        <li *ngFor="let slot of availability[resource.id]">
+          {{ slot.start_time | date:'shortTime' }} -
+          {{ slot.end_time | date:'shortTime' }}
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="availability[resource.id]?.length === 0">
+      <p>No bookings for this date.</p>
+    </div>
+
+    <!-- Simple booking -->
+    <div style="margin-top: 10px;">
+      <button
+        mat-raised-button
+        color="accent"
+        (click)="createBooking(
+          resource.id,
+          selectedDate.toISOString().split('T')[0] + ' 10:00:00',
+          selectedDate.toISOString().split('T')[0] + ' 12:00:00'
+        )"
+      >
+        Book 10:00 - 12:00
+      </button>
+    </div>
+  </mat-card>
+</mat-card>
