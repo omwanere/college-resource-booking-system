@@ -38,7 +38,7 @@ export class LoginComponent {
       next: () => {
         this.snack.open('Login Successful', 'Close', {duration: 2000});
         const role = this.auth.getUserRole();
-        this.router.navigate([role === 'ADMIN' ? '/admin' : '/']);
+        this.router.navigate([role === 'ADMIN' ? '/admin' : '/dashboard']);
       },
       error: (error) => {
         this.snack.open(
