@@ -1,25 +1,32 @@
 import { Component } from "@angular/core";
 import { CommonModule } from '@angular/common';
 import { NonNullableFormBuilder, ReactiveFormsModule, FormBuilder, Validators, FormGroup } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { Auth } from "../../services/auth";
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     MatCardModule,
     MatInputModule,
     MatButtonModule,
     MatSnackBarModule,
+    MatFormFieldModule,
+    MatIconModule,
   ],
-  templateUrl: './login.component.html',
+  templateUrl: './login.html',
+  styleUrl: './login.scss',
 })
 
 export class LoginComponent {

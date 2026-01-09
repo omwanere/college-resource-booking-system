@@ -1,64 +1,125 @@
-<mat-card style="margin: 20px;">
-  <h2>Available Resources</h2>
+<div class="resources-container">
+  <div class="header-section">
+    <h1>Available Resources</h1>
+    <p class="subtitle">Book your preferred resource and time slot</p>
+  </div>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Select date</mat-label>
-    <input
-      matInput
-      [matDatepicker]="picker"
-      [(ngModel)]="selectedDate"
-    />
-    <mat-datepicker-toggle
-      matSuffix
-      [for]="picker"
-    ></mat-datepicker-toggle>
-    <mat-datepicker #picker></mat-datepicker>
-  </mat-form-field>
+  <div class="filters-section">
+    <mat-card class="filter-card">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Select Date</mat-label>
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [(ngModel)]="selectedDate"
+          [min]="minDate"
+        />
+        <mat-datepicker-toggle
+          matSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </mat-card>
+  </div>
 
-  <mat-card
-    *ngFor="let resource of resources"
-    style="margin-top: 20px;"
-  >
-    <h3>{{ resource.name }}</h3>
-    <p>Type: {{ resource.type }}</p>
-    <p>Capacity: {{ resource.capacity }}</p>
-    <p>Location: {{ resource.location }}</p>
+  <div *ngIf="loading" class="loading-container">
+    <p>Loading resources...</p>
+  </div>
 
-    <button
-      mat-stroked-button
-      color="primary"
-      (click)="checkAvailability(resource.id)"
+  <div class="resources-grid" *ngIf="!loading && resources.length > 0">
+    <mat-card
+      *ngFor="let resource of resources"
+      class="resource-card"
     >
-      Check Availability
-    </button>
+      <mat-card-header>
+        <mat-card-title>{{ resource.name }}</mat-card-title>
+        <mat-card-subtitle>{{ resource.type }}</mat-card-subtitle>
+      </mat-card-header>
 
-    <div *ngIf="availability[resource.id]?.length">
-      <p><strong>Busy slots:</strong></p>
-      <ul>
-        <li *ngFor="let slot of availability[resource.id]">
-          {{ slot.start_time | date:'shortTime' }} -
-          {{ slot.end_time | date:'shortTime' }}
-        </li>
-      </ul>
-    </div>
+      <mat-card-content>
+        <div class="resource-info">
+          <div class="info-item">
+            <mat-icon>people</mat-icon>
+            <span>Capacity: {{ resource.capacity || 'N/A' }}</span>
+          </div>
+          <div class="info-item" *ngIf="resource.location">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ resource.location }}</span>
+          </div>
+        </div>
 
-    <div *ngIf="availability[resource.id]?.length === 0">
-      <p>No bookings for this date.</p>
-    </div>
+        <button
+          mat-stroked-button
+          color="primary"
+          class="availability-btn"
+          (click)="checkAvailability(resource.id)"
+        >
+          <mat-icon>schedule</mat-icon>
+          Check Availability
+        </button>
 
-    <!-- Simple booking -->
-    <div style="margin-top: 10px;">
-      <button
-        mat-raised-button
-        color="accent"
-        (click)="createBooking(
-          resource.id,
-          selectedDate.toISOString().split('T')[0] + ' 10:00:00',
-          selectedDate.toISOString().split('T')[0] + ' 12:00:00'
-        )"
-      >
-        Book 10:00 - 12:00
-      </button>
-    </div>
-  </mat-card>
-</mat-card>
+        <div *ngIf="availability[resource.id] && availability[resource.id].length > 0" class="busy-slots">
+          <p class="busy-title"><strong>Busy Time Slots:</strong></p>
+          <div class="slots-list">
+            <span
+              *ngFor="let slot of availability[resource.id]"
+              class="slot-badge"
+            >
+              {{ slot.start_time | date:'shortTime' }} - {{ slot.end_time | date:'shortTime' }}
+            </span>
+          </div>
+        </div>
+
+        <div *ngIf="availability[resource.id] && availability[resource.id].length === 0" class="available-message">
+          <mat-icon>check_circle</mat-icon>
+          <span>Available all day</span>
+        </div>
+
+        <div class="booking-section">
+          <h4>Book Time Slot</h4>
+          <div class="time-selectors">
+            <mat-form-field appearance="outline" class="time-field">
+              <mat-label>Start Time</mat-label>
+              <mat-select [(ngModel)]="selectedStartTime">
+                <mat-option
+                  *ngFor="let time of timeSlots"
+                  [value]="time"
+                >
+                  {{ time }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="time-field">
+              <mat-label>End Time</mat-label>
+              <mat-select [(ngModel)]="selectedEndTime">
+                <mat-option
+                  *ngFor="let time of timeSlots"
+                  [value]="time"
+                >
+                  {{ time }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <button
+            mat-raised-button
+            color="primary"
+            class="book-btn"
+            (click)="createBooking(resource.id)"
+          >
+            <mat-icon>book</mat-icon>
+            Book Now
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!loading && resources.length === 0" class="empty-state">
+    <mat-icon>inbox</mat-icon>
+    <p>No resources available at the moment</p>
+  </div>
+</div>

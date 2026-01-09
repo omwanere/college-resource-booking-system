@@ -5,6 +5,7 @@ import { RegisterComponent } from './pages/register/register';
 import { UserDashboard } from './pages/user-dashboard/user-dashboard';
 import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
 import { Resources } from './pages/resources/resources';
+import { ResourceManagementComponent } from './pages/resource-management/resource-management';
 
 import { AuthGuard } from './guards/auth-guard';
 import { AdminGuard } from './guards/admin-guard';
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: UserDashboard, canActivate: [AuthGuard]},
   { path: 'admin', component: AdminDashboard, canActivate: [AuthGuard, AdminGuard],},
+  { path: 'admin/resources', component: ResourceManagementComponent, canActivate: [AuthGuard, AdminGuard],},
   { path: 'resources', component: Resources, canActivate: [AuthGuard],},
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login'},

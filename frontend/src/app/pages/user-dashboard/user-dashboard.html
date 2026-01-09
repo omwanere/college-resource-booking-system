@@ -1,4 +1,50 @@
-<mat-card style="margin: 20px;">
-  <h2>User Dashboard</h2>
-  <p>Welcome! You can browse resources and book them.</p>
-</mat-card>
+<div class="user-dashboard-container">
+  <div class="header-section">
+    <h1>My Bookings</h1>
+    <p class="subtitle">View and manage your resource bookings</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <p>Loading your bookings...</p>
+  </div>
+
+  <div *ngIf="!loading && bookings.length === 0" class="empty-state">
+    <mat-icon>event_busy</mat-icon>
+    <p>You have no bookings yet.</p>
+    <a routerLink="/resources" mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      Book a Resource
+    </a>
+  </div>
+
+  <div class="bookings-grid" *ngIf="!loading && bookings.length > 0">
+    <mat-card *ngFor="let booking of bookings; trackBy: trackByBookingId" class="booking-card">
+      <mat-card-content>
+        <div class="booking-header">
+          <h3>{{ booking.resource_name }}</h3>
+          <span
+            class="status-badge"
+            [class.approved]="booking.status === 'APPROVED'"
+            [class.rejected]="booking.status === 'REJECTED'"
+            [class.pending]="booking.status === 'PENDING'"
+          >
+            {{ booking.status }}
+          </span>
+        </div>
+
+        <div class="booking-info">
+          <div class="info-item">
+            <mat-icon>schedule</mat-icon>
+            <div>
+              <strong>Time:</strong>
+              <span>
+                {{ booking.start_time | date:'short' }} -
+                {{ booking.end_time | date:'short' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

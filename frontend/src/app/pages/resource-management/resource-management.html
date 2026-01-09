@@ -1,0 +1,133 @@
+<div class="resource-management-container">
+  <div class="header-section">
+    <h1>Resource Management</h1>
+    <p class="subtitle">Manage all resources in the system</p>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openAddForm()"
+      class="add-button"
+    >
+      <mat-icon>add</mat-icon>
+      Add New Resource
+    </button>
+  </div>
+
+  <div *ngIf="showForm" class="form-section">
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>
+          {{ editingResource ? 'Edit Resource' : 'Add New Resource' }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Resource Name *</mat-label>
+            <input matInput formControlName="name" />
+            <mat-icon matPrefix>label</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Type *</mat-label>
+            <mat-select formControlName="type">
+              <mat-option *ngFor="let type of resourceTypes" [value]="type">
+                {{ type }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>category</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Capacity</mat-label>
+            <input matInput type="number" formControlName="capacity" />
+            <mat-icon matPrefix>people</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Location</mat-label>
+            <input matInput formControlName="location" />
+            <mat-icon matPrefix>location_on</mat-icon>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button
+              mat-button
+              type="button"
+              (click)="cancelEdit()"
+            >
+              Cancel
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="form.invalid"
+            >
+              {{ editingResource ? 'Update' : 'Create' }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <p>Loading resources...</p>
+  </div>
+
+  <div class="resources-grid" *ngIf="!loading">
+    <mat-card *ngFor="let resource of resources" class="resource-card">
+      <mat-card-header>
+        <mat-card-title>{{ resource.name }}</mat-card-title>
+        <mat-card-subtitle>{{ resource.type }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="resource-info">
+          <div class="info-item" *ngIf="resource.capacity">
+            <mat-icon>people</mat-icon>
+            <span>Capacity: {{ resource.capacity }}</span>
+          </div>
+          <div class="info-item" *ngIf="resource.location">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ resource.location }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon [class]="resource.is_active ? 'active' : 'inactive'">
+              {{ resource.is_active ? 'check_circle' : 'cancel' }}
+            </mat-icon>
+            <span [class]="resource.is_active ? 'active' : 'inactive'">
+              {{ resource.is_active ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="editResource(resource)"
+          >
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button
+            mat-stroked-button
+            color="warn"
+            (click)="deleteResource(resource.id)"
+            *ngIf="resource.is_active"
+          >
+            <mat-icon>delete</mat-icon>
+            Disable
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!loading && resources.length === 0" class="empty-state">
+    <mat-icon>inbox</mat-icon>
+    <p>No resources found. Add your first resource!</p>
+  </div>
+</div>

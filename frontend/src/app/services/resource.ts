@@ -44,5 +44,45 @@ export class ResourceService {
       this.authHeaders()
     );
   }
-  
+  getMyBookings() {
+    return this.http.get<any>(
+      `${this.apiUrl}/bookings/my`,
+      this.authHeaders()
+    );
+  }
+
+  createResource(data: {
+    name: string,
+    type: string,
+    capacity?: number,
+    location?: string
+  }) {
+    return this.http.post<any>(
+      `${this.apiUrl}/resources`,
+      data,
+      this.authHeaders()
+    );
+  }
+
+  updateResource(id: string, data: {
+    name?: string,
+    type?: string,
+    capacity?: number,
+    location?: string,
+    is_active?: boolean
+  }) {
+    return this.http.put<any>(
+      `${this.apiUrl}/resources/${id}`,
+      data,
+      this.authHeaders()
+    );
+  }
+
+  disableResource(id: string) {
+    return this.http.patch<any>(
+      `${this.apiUrl}/resources/${id}/disable`,
+      {},
+      this.authHeaders()
+    );
+  }
 }

@@ -1,32 +1,184 @@
-<mat-card style="margin: 20px;">
-  <h2>Pending Booking Requests</h2>
+<div class="admin-container">
+  <div class="header-section">
+    <h1>Admin Dashboard</h1>
+    <div class="header-actions">
+      <a routerLink="/admin/resources" mat-raised-button color="accent">
+        <mat-icon>add</mat-icon>
+        Manage Resources
+      </a>
+    </div>
+  </div>
 
-  <div *ngIf="loading">Loading...</div>
-
-  <mat-card *ngFor="let booking of bookings" style="margin-top: 15px;">
-    <p><strong>Resource:</strong> {{ booking.resource_name }}</p>
-    <p><strong>User:</strong> {{ booking.user_email }}</p>
-    <p>
-      <strong>Time:</strong>
-      {{ booking.start_time | date:'short' }} -
-      {{ booking.end_time | date:'short' }}
-    </p>
-
+  <div class="tabs-section">
     <button
-      mat-raised-button
-      color="primary"
-      (click)="approve(booking.id)"
+      mat-button
+      [class.active]="activeTab === 'bookings'"
+      (click)="activeTab = 'bookings'"
     >
-      Approve
+      <mat-icon>event</mat-icon>
+      Booking Requests
     </button>
-
     <button
-      mat-raised-button
-      color="warn"
-      style="margin-left: 10px;"
-      (click)="reject(booking.id)"
+      mat-button
+      [class.active]="activeTab === 'registrations'"
+      (click)="activeTab = 'registrations'"
     >
-      Reject
+      <mat-icon>person_add</mat-icon>
+      Registration Requests
     </button>
+  </div>
+
+  <!-- Booking Requests Tab -->
+  <mat-card class="main-card" *ngIf="activeTab === 'bookings'">
+    <mat-card-header>
+      <mat-card-title>
+        <h2>Pending Booking Requests</h2>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="loading" class="loading-container">
+        <p>Loading bookings...</p>
+      </div>
+
+      <div *ngIf="!loading && bookings.length === 0" class="empty-state">
+        <mat-icon>inbox</mat-icon>
+        <p>No pending booking requests</p>
+      </div>
+
+      <div class="bookings-grid" *ngIf="!loading && bookings.length > 0">
+        <mat-card *ngFor="let booking of bookings" class="booking-card">
+          <mat-card-content>
+            <div class="booking-info">
+              <div class="info-row">
+                <mat-icon>meeting_room</mat-icon>
+                <div>
+                  <strong>Resource:</strong>
+                  <span>{{ booking.resource_name }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <mat-icon>person</mat-icon>
+                <div>
+                  <strong>User:</strong>
+                  <span>{{ booking.user_email }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <mat-icon>schedule</mat-icon>
+                <div>
+                  <strong>Time:</strong>
+                  <span>
+                    {{ booking.start_time | date:'short' }} -
+                    {{ booking.end_time | date:'short' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="booking-actions">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="approve(booking.id)"
+                class="action-btn"
+              >
+                <mat-icon>check</mat-icon>
+                Approve
+              </button>
+
+              <button
+                mat-raised-button
+                color="warn"
+                (click)="reject(booking.id)"
+                class="action-btn"
+              >
+                <mat-icon>close</mat-icon>
+                Reject
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-card-content>
   </mat-card>
-</mat-card>
+
+  <!-- Registration Requests Tab -->
+  <mat-card class="main-card" *ngIf="activeTab === 'registrations'">
+    <mat-card-header>
+      <mat-card-title>
+        <h2>Pending Admin Registration Requests</h2>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="loadingRegistrations" class="loading-container">
+        <p>Loading registration requests...</p>
+      </div>
+
+      <div *ngIf="!loadingRegistrations && registrationRequests.length === 0" class="empty-state">
+        <mat-icon>person_off</mat-icon>
+        <p>No pending registration requests</p>
+      </div>
+
+      <div class="bookings-grid" *ngIf="!loadingRegistrations && registrationRequests.length > 0">
+        <mat-card *ngFor="let request of registrationRequests" class="booking-card">
+          <mat-card-content>
+            <div class="booking-info">
+              <div class="info-row">
+                <mat-icon>person</mat-icon>
+                <div>
+                  <strong>Name:</strong>
+                  <span>{{ request.name }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <mat-icon>email</mat-icon>
+                <div>
+                  <strong>Email:</strong>
+                  <span>{{ request.email }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <mat-icon>admin_panel_settings</mat-icon>
+                <div>
+                  <strong>Role:</strong>
+                  <span>{{ request.role }}</span>
+                </div>
+              </div>
+              <div class="info-row">
+                <mat-icon>schedule</mat-icon>
+                <div>
+                  <strong>Requested:</strong>
+                  <span>{{ request.created_at | date:'short' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="booking-actions">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="approveRegistration(request.id)"
+                class="action-btn"
+              >
+                <mat-icon>check</mat-icon>
+                Approve
+              </button>
+
+              <button
+                mat-raised-button
+                color="warn"
+                (click)="rejectRegistration(request.id)"
+                class="action-btn"
+              >
+                <mat-icon>close</mat-icon>
+                Reject
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

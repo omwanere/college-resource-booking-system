@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Auth } from '../../services/auth';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-register',
@@ -14,11 +17,16 @@ import { MatInputModule } from '@angular/material/input';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
     MatCardModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule
   ],
   templateUrl: './register.html',
+  styleUrl: './register.scss',
 })
 
 export class RegisterComponent {
@@ -36,6 +44,7 @@ export class RegisterComponent {
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
+    role: ['USER', Validators.required],
   });
   }
 
@@ -45,16 +54,27 @@ export class RegisterComponent {
     this.auth
       .register({
         ...this.form.value,
-        role: 'USER',
       } as any)
       .subscribe({
-        next: () => {
-          this.snack.open('Registation successful', 'Close', {
-            duration: 2000,
-          });
+        next: (res: any) => {
+          this.loading = false;
+          if (res?.pending) {
+            this.snack.open(
+              'Admin registration request submitted. Waiting for approval.',
+              'Close',
+              {
+                duration: 5000,
+              }
+            );
+          } else {
+            this.snack.open('Registration successful', 'Close', {
+              duration: 2000,
+            });
+          }
           this.router.navigate(['/login']);
         },
         error: (error) => {
+          this.loading = false;
           this.snack.open(
             error.error?.message || 'Registration failed',
             'Close', 
@@ -62,7 +82,6 @@ export class RegisterComponent {
               duration: 3000
             }
           );
-          this.loading = false;
         },
       });
   }
