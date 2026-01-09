@@ -13,12 +13,51 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({message: "Email and password required"})
         }
 
+        // Check if email already exists in users table
+        const existingUser = await pool.query(
+            `SELECT id FROM public.users WHERE email = $1`,
+            [email]
+        );
+
+        if(existingUser.rows.length > 0){
+            return res.status(409).json({message: 'Email already registered'});
+        }
+
+        // Check if email already exists in pending registrations
+        const existingPending = await pool.query(
+            `SELECT id FROM public.pending_registrations WHERE email = $1`,
+            [email]
+        );
+
+        if(existingPending.rows.length > 0){
+            return res.status(409).json({message: 'Registration request already pending'});
+        }
+
         const hashedPassword = await bcrpyt.hash(password, 10);
+        const userRole = role || 'USER';
+
+        // If ADMIN role, create pending registration request
+        if(userRole === 'ADMIN'){
+            const pendingResult = await pool.query(
+                `INSERT INTO public.pending_registrations (name, email, password_hash, role, status)
+                 VALUES ($1, $2, $3, $4, 'PENDING')
+                 RETURNING id, email, name, role, created_at`,
+                [name, email, hashedPassword, userRole]
+            );
+
+            return res.status(201).json({
+                message: 'Admin registration request submitted. Waiting for approval.',
+                pending: true,
+                request: pendingResult.rows[0],
+            });
+        }
+
+        // For USER role, create account immediately
         const result = await pool.query(
             `INSERT INTO public.users (name, email, password_hash, role)
              VALUES ($1, $2, $3, $4)
              RETURNING id, email, role`,
-            [name, email, hashedPassword, role || 'USER']
+            [name, email, hashedPassword, userRole]
         );
 
         res.status(201).json({

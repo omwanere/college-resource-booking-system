@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get('/', authenticate, getResources);
 router.post('/', authenticate,authorizeRoles('ADMIN'),createResource);
-router.put('/', authenticate, authorizeRoles('ADMIN'),updateResource);
+router.put('/:id', authenticate, authorizeRoles('ADMIN'),updateResource);
 router.patch('/:id/disable', authenticate, authorizeRoles('ADMIN'), disableResource);
 
 router.get('/:id/availability', authenticate, getResourceAvailability);

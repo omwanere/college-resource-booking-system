@@ -1,5 +1,5 @@
 import express from "express"
-import { createBooking, approveBooking, rejectBooking, getMyBookings, getAllBookings, cancelBooking } from "../controllers/booking.controller.js"
+import { createBooking, approveBooking, rejectBooking, getMyBookings, getAllBookings, cancelBooking, getPendingBookings } from "../controllers/booking.controller.js"
 import { authenticate } from "../middleware/auth.middleware.js"
 import { authorizeRoles } from "../middleware/role.middleware.js";
 
@@ -9,7 +9,7 @@ router.post('/',authenticate,createBooking);
 
 router.get('/my', authenticate, getMyBookings);
 
-
+router.get('/pending', authenticate, authorizeRoles('ADMIN'), getPendingBookings);
 
 router.get('/', authenticate, authorizeRoles('ADMIN'), getAllBookings);
 

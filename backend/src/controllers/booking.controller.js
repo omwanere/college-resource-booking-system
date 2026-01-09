@@ -146,10 +146,11 @@ export const rejectBooking = async (req, res) => {
 export const getMyBookings = async (req, res) => {
     try {
         const userId = req.user.userId;
+        console.log(userId);
         const {status} = req.query;
 
         let query = `
-         SELECT b.*, r.name AS recource_name, r.type
+         SELECT b.*, r.name AS resource_name, r.type
          FROM public.bookings b
          JOIN public.resources r ON b.resource_id = r.id
          WHERE b.user_id = $1
@@ -158,17 +159,19 @@ export const getMyBookings = async (req, res) => {
         const values = [userId];
 
         if(status){
-            query += 'AND b.status = $2';
+            query += ' AND b.status = $2';
             values.push(status);
         }
 
-        query += 'ORDER BY b.start_time';
+        query += ' ORDER BY b.start_time';
 
         const result = await pool.query(query, values);
         
+        console.log('Query result:', result.rows.length, 'bookings found');
+        console.log('Bookings data:', result.rows);
         res.json({
             count: result.rows.length,
-            booking: result.rows,
+            bookings: result.rows,
         });
     } catch (error) {
         console.error(error);
@@ -181,7 +184,7 @@ export const getAllBookings = async (req, res) => {
         const {status, resource_id} = req.query;
 
         let query = `
-         SELECT b.*, u.email, r.name AS resource_name, r.type
+         SELECT b.*, u.email AS user_email, r.name AS resource_name, r.type
          FROM public.bookings b
          JOIN public.users u ON b.user_id = u.id
          JOIN public.resources r ON b.resource_id = r.id
@@ -213,6 +216,29 @@ export const getAllBookings = async (req, res) => {
         console.error(error);
         res.status(500).json({message: 'Server Error'
         });
+    }
+};
+
+export const getPendingBookings = async (req, res) => {
+    try {
+        const query = `
+         SELECT b.*, u.email AS user_email, r.name AS resource_name, r.type
+         FROM public.bookings b
+         JOIN public.users u ON b.user_id = u.id
+         JOIN public.resources r ON b.resource_id = r.id
+         WHERE b.status = 'PENDING'
+         ORDER BY b.created_at DESC
+        `;
+
+        const result = await pool.query(query);
+
+        res.json({
+            count: result.rows.length,
+            bookings: result.rows,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: 'Server Error'});
     }
 };
 

@@ -56,21 +56,47 @@ export const updateResource = async (req, res) => {
         const {id} = req.params;
         const {name, type, capacity, location, is_active} = req.body;
 
-        const result = await pool.query(
-            `UPDATE public.resources
-             SET
-                name=  COALESCE($1, name),
-                type = COALESCE($2, type),
-                capacity = COALESCE($3, type)
-                location = COALESCE($4, type),
-                is_active = COALESCE($5, type),
-             WHERE id = $6
-             RETURNING *`,
-            [name, type, capacity, location, is_active, id]
-        );
+        const updates = [];
+        const values = [];
+        let paramIndex = 1;
+
+        if (name !== undefined) {
+            updates.push(`name = $${paramIndex++}`);
+            values.push(name);
+        }
+        if (type !== undefined) {
+            updates.push(`type = $${paramIndex++}`);
+            values.push(type);
+        }
+        if (capacity !== undefined) {
+            updates.push(`capacity = $${paramIndex++}`);
+            values.push(capacity);
+        }
+        if (location !== undefined) {
+            updates.push(`location = $${paramIndex++}`);
+            values.push(location);
+        }
+        if (is_active !== undefined) {
+            updates.push(`is_active = $${paramIndex++}`);
+            values.push(is_active);
+        }
+
+        if (updates.length === 0) {
+            return res.status(400).json({message: 'No fields to update'});
+        }
+
+        values.push(id);
+        const query = `
+            UPDATE public.resources
+            SET ${updates.join(', ')}
+            WHERE id = $${paramIndex}
+            RETURNING *
+        `;
+
+        const result = await pool.query(query, values);
 
         if(result.rows.length === 0){
-            res.status(404).json({message: 'Resource not found'});
+            return res.status(404).json({message: 'Resource not found'});
         }
 
         res.json({
